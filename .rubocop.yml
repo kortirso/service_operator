@@ -17,5 +17,19 @@ Style/StringLiteralsInInterpolation:
   Enabled: true
   EnforcedStyle: double_quotes
 
+Style/Documentation:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+
 Layout/LineLength:
   Max: 120
+
+# No space makes the method definition shorter and differentiates
+# from a regular assignment.
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+RSpec/ExampleLength:
+  Max: 20
