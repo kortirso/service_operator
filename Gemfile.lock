@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    service_operator (0.1.0)
+    service_operator (0.2.0)
 
 GEM
   remote: https://rubygems.org/

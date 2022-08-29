@@ -33,3 +33,19 @@ Layout/SpaceAroundEqualsInParameterDefault:
 
 RSpec/ExampleLength:
   Max: 20
+
+RSpec/NestedGroups:
+  Max: 6
+
+RSpec/ContextWording:
+  Prefixes:
+    - when
+    - with
+    - without
+    - and
+    - if
+    - in
+    - for
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false

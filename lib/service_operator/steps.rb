@@ -27,7 +27,7 @@ module ServiceOperator
       #     include ServiceOperator
       #
       #     before :set_start_time
-      #     before :initial, with: SomeService
+      #     before :initial, service: SomeService
       #
       #     before do
       #       puts 'started'
@@ -40,8 +40,8 @@ module ServiceOperator
       #     end
       #   end
       #
-      def before(name=nil, with: nil, **args, &block)
-        before_steps << Step.new(name: name, with: with, args: args, block: block)
+      def before(name=nil, service: nil, **args, &block)
+        before_steps << Step.new(name: name, service: service, args: args, block: block)
       end
 
       # Examples
@@ -50,7 +50,7 @@ module ServiceOperator
       #     include ServiceOperator
       #
       #     step :set_initiated
-      #     step :perform_work, with: AnotherService
+      #     step :perform_work, service: AnotherService
       #
       #     step do
       #       puts 'going to finish'
@@ -63,8 +63,8 @@ module ServiceOperator
       #     end
       #   end
       #
-      def step(name=nil, with: nil, **args, &block)
-        steps << Step.new(name: name, with: with, args: args, block: block)
+      def step(name=nil, service: nil, **args, &block)
+        steps << Step.new(name: name, service: service, args: args, block: block)
       end
 
       # Examples
@@ -73,7 +73,7 @@ module ServiceOperator
       #     include ServiceOperator
       #
       #     after :set_finish_time
-      #     after :finishing, with: SomeService
+      #     after :finishing, service: SomeService
       #
       #     after do
       #       puts 'finished'
@@ -86,8 +86,8 @@ module ServiceOperator
       #     end
       #   end
       #
-      def after(name=nil, with: nil, **args, &block)
-        after_steps << Step.new(name: name, with: with, args: args, block: block)
+      def after(name=nil, service: nil, **args, &block)
+        after_steps << Step.new(name: name, service: service, args: args, block: block)
       end
     end
 
@@ -105,7 +105,7 @@ module ServiceOperator
 
     # Internal: Run a colection of steps.
     def run_steps(steps)
-      steps.each { |step| step.run(operator: self, context: context) }
+      steps.each { |step| step.run(operator: self) }
     end
   end
 end

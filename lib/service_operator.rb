@@ -5,6 +5,7 @@ require_relative 'service_operator/steps'
 require_relative 'service_operator/step'
 require_relative 'service_operator/hooks'
 require_relative 'service_operator/context'
+require_relative 'service_operator/configuration'
 
 module ServiceOperator
   def self.included(base)
@@ -13,11 +14,31 @@ module ServiceOperator
       include Steps
       include Hooks
 
+      attr_reader :configuration
       attr_reader :context
     end
   end
 
   module ClassMethods
+    def configuration
+      @configuration ||= Configuration.new
+    end
+
+    # Examples
+    #
+    #   class MyOperator
+    #     include ServiceOperator
+    #
+    #     configure do |config|
+    #       config.call_method_name = :call
+    #       config.call_parameters_method_name = :call
+    #     end
+    #   end
+    #
+    def configure
+      yield(configuration)
+    end
+
     def required_params
       @required_params ||= []
     end
@@ -46,6 +67,9 @@ module ServiceOperator
 
   def call
     with_hooks { run_steps(self.class.steps) }
+    context
+  # rescue catches errors in before and after steps and stops execution
+  rescue StandardError
     context
   end
 end

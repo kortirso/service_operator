@@ -35,8 +35,8 @@ module ServiceOperator
       #     end
       #   end
       #
-      def around(name=nil, with: nil, **args, &block)
-        around_hooks << Step.new(name: name, with: with, args: args, block: block)
+      def around(name=nil, &block)
+        around_hooks << Step.new(name: name, service: nil, args: nil, block: block)
       end
     end
 
@@ -46,8 +46,6 @@ module ServiceOperator
       run_before_steps
       run_around_hooks(&block)
       run_after_steps
-    # rescue catches errors in before and after steps and stops execution
-    rescue
     end
 
     # Internal: Run around step.
@@ -56,11 +54,11 @@ module ServiceOperator
         proc { run_hook(hook, proc_chain) }
       }.call
     # rescue catches errors in around hooks and main steps and allow to run after steps
-    rescue
+    rescue StandardError
     end
 
     def run_hook(hook, proc_chain)
-      return hook.run(operator: self, context: context, block_variable: proc_chain) if hook.is_a?(Step)
+      return hook.run(operator: self, proc: proc_chain) if hook.is_a?(Step)
 
       instance_exec(proc_chain, &hook)
     end
