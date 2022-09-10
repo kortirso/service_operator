@@ -13,46 +13,58 @@ module ServiceOperator
 
     private
 
-    def perform_service_step
-      step_object = service.new
-
-      perform_step_object_call(step_object)
-      check_step_object_failure(step_object)
+    def perform_method_step(proc)
+      proc ? @operator.send(name, proc) : @operator.send(name)
     end
 
-    def perform_step_object_call(step_object)
-      step_object_parameters = step_parameters(step_object)
+    def perform_service_step
+      service_object = service.new
 
-      if step_object_parameters
-        step_object.public_send(@operator.configuration.call_method_name, step_object_parameters)
+      service_object_call(service_object)
+      validate_service_object_call_result(service_object)
+    end
+
+    def service_object_call(service_object)
+      service_call_arguments = fetch_service_call_arguments(service_object)
+
+      if service_call_arguments
+        service_object.public_send(@operator.configuration.call_method_name, *service_call_arguments)
       else
-        step_object.public_send(@operator.configuration.call_method_name)
+        service_object.public_send(@operator.configuration.call_method_name)
       end
     end
 
-    def check_step_object_failure(step_object)
+    def validate_service_object_call_result(service_object)
       failure_method_name = @operator.configuration.failure_method_name
-      @operator.context.fail if failure_method_name && step_object.public_send(failure_method_name)
+      @operator.context.fail if failure_method_name && service_object.public_send(failure_method_name)
     end
 
     # Private: Find parameters names for step object's call.
     # Then generate hash with these parameters from operator.context.
     # Then overwrite some of them from step's args.
-    def step_parameters(step_object)
+    def fetch_service_call_arguments(service_object)
       parameters_list =
-        step_object
+        service_object
         .method(@operator.configuration.call_parameters_method_name)
         .parameters
       return if parameters_list.empty?
 
-      parameters_list
-        .map { |e| e[1] }
-        .each_with_object({}) { |attr_name, acc| acc[attr_name] = @operator.context[attr_name] }
-        .merge(args) { |_, _, new_value| @operator.send(new_value) }
+      generate_argument_for_method_call(parameters_list)
     end
 
-    def perform_method_step(proc)
-      proc ? @operator.send(name, proc) : @operator.send(name)
+    def generate_argument_for_method_call(parameters_list, positional_arguments=[], keyword_arguments={})
+      parameters_list.each { |type, name|
+        case type
+        when :req, :opt, :rest then positional_arguments << fetch_value(name)
+        when :keyreq, :key, :keyrest then keyword_arguments[name] = fetch_value(name)
+        end
+      }
+
+      [*positional_arguments, keyword_arguments]
+    end
+
+    def fetch_value(name)
+      args[name] ? @operator.send(name) : @operator.context[name]
     end
   end
 end

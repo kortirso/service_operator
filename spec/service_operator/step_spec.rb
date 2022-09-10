@@ -72,7 +72,36 @@ RSpec.describe ServiceOperator::Step do
             expect(context).not_to have_received(:fail)
           end
         end
+
+        # rubocop: disable Lint/UnusedMethodArgument, Metrics/ParameterLists
+        context 'with full list of existing method arguments' do
+          def jumbo_method(req, opt=nil, *rest, week_id:, key: nil, **keyrest)
+            'mocked method'
+          end
+
+          let(:step) { described_class.new(service: service_class, args: {}) }
+          let(:context) { ServiceOperator::Context.build({ week_id: 1, req: 'required' }) }
+          let(:parameters_list) { method(:jumbo_method).parameters }
+
+          it 'calls service with parameters', :aggregate_failures do
+            step_run
+
+            expect(service_object).to(
+              have_received(:public_send).with(
+                :call,
+                'required',
+                nil,
+                nil,
+                week_id: 1,
+                key: nil,
+                keyrest: nil
+              )
+            )
+            expect(context).not_to have_received(:fail)
+          end
+        end
       end
+      # rubocop: enable Lint/UnusedMethodArgument, Metrics/ParameterLists
 
       context 'for custom configuration' do
         let(:call_method_name) { :just_call }
