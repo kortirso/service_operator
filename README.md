@@ -1,11 +1,7 @@
 # ServiceOperator
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/service_operator`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Simple interactor is a gem based on ideas of gems [interactor](https://github.com/collectiveidea/interactor) and [dry-transaction](https://github.com/dry-rb/dry-transaction). ServiceOperator provides a simple way to processing over many steps and by many different objects.
 
 ## Installation
-
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -13,16 +9,71 @@ gem 'service_operator'
 ```
 
 And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install service_operator
+```bash
+$ bundle install
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+First you need create ApplicationOperator - basis class for your operators
+```ruby
+class ApplicationOperator
+  include ServiceOperator
+
+  # configuration
+  configure do |config|
+    config.call_parameters_method_name = :call_parameters
+  end
+
+  private
+
+  # this around action is useful when you need to wrap your steps inside transaction
+  def use_transaction(operator)
+    ActiveRecord::Base.transaction do
+      operator.call
+    end
+  end
+end
+```
+
+And then you can start creating operators for wrapping services with business logic
+```ruby
+module Weeks
+  class RefreshOperator < ApplicationOperator
+    # validating provided parameters for operator
+    required_context :week
+
+    # definition for around hooks
+    around :use_transaction
+
+    # definition for before hooks
+    before :turn_off
+
+    # definition for main steps
+    step :finish_week, service: Weeks::FinishService, week: :previous_week
+    step :start_week, service: Weeks::StartService
+    step :prepare_week, service: Weeks::ComingService
+
+    # definition for after hooks
+    after :turn_on
+
+    private
+
+    def turn_off; end
+
+    def turn_on; end
+
+    def previous_week
+      context.week.previous
+    end
+  end
+end
+```
+
+And run your operator
+```ruby
+  Weeks::RefreshOperator.call(week: week)
+```
 
 ## Development
 
@@ -32,7 +83,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/service_operator.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kortirso/service_operator.
 
 ## License
 
