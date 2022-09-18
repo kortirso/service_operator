@@ -16,7 +16,7 @@ module ServiceOperator
       # Examples
       #
       #   class MyOperator
-      #     include ServiceOperator
+      #     include ServiceOperator::Helpers
       #
       #     around :use_transaction
       #

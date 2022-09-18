@@ -43,13 +43,21 @@ module ServiceOperator
     # Then generate hash with these parameters from operator.context.
     # Then overwrite some of them from step's args.
     def fetch_service_call_arguments(service_object)
-      parameters_list =
-        service_object
-        .method(@operator.configuration.call_parameters_method_name)
-        .parameters
-      return if parameters_list.empty?
+      parameters_list = fetch_parameters_list(service_object)
+      return if parameters_list.nil? || parameters_list.empty?
 
       generate_argument_for_method_call(parameters_list)
+    end
+
+    def fetch_parameters_list(service_object)
+      if @operator.configuration.call_parameters_method_name
+        service_object
+          .public_send(@operator.configuration.call_parameters_method_name)
+      else
+        service_object
+          .method(@operator.configuration.call_method_name)
+          .parameters
+      end
     end
 
     def generate_argument_for_method_call(parameters_list, positional_arguments=[], keyword_arguments={})
@@ -64,7 +72,7 @@ module ServiceOperator
     end
 
     def fetch_value(name)
-      args[name] ? @operator.send(name) : @operator.context[name]
+      args[name] ? @operator.send(args[name]) : @operator.context[name]
     end
   end
 end

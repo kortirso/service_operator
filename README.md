@@ -15,15 +15,21 @@ $ bundle install
 
 ## Usage
 
-First you need create ApplicationOperator - basis class for your operators
+### Initializer
+
+Add configuration to config/initializers/service_operator.rb:
+```ruby
+ServiceOperator.configure do |config|
+  config.call_parameters_method_name = :call_parameters
+end
+```
+
+### ApplicationOperator
+
+You can create ApplicationOperator - basis class for your operators
 ```ruby
 class ApplicationOperator
-  include ServiceOperator
-
-  # configuration
-  configure do |config|
-    config.call_parameters_method_name = :call_parameters
-  end
+  include ServiceOperator::Helpers
 
   private
 

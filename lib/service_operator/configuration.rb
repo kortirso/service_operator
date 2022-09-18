@@ -9,7 +9,7 @@ module ServiceOperator
       @call_method_name = :call
 
       # Operator tries to run this method on step's service for fetching arguments list.
-      @call_parameters_method_name = :call
+      @call_parameters_method_name = nil
 
       # Operator tries to run this method on step's service for checking failure status.
       @failure_method_name = nil

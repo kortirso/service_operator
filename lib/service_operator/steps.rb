@@ -24,7 +24,7 @@ module ServiceOperator
       # Examples
       #
       #   class MyOperator
-      #     include ServiceOperator
+      #     include ServiceOperator::Helpers
       #
       #     before :set_start_time
       #     before :initial, service: SomeService
@@ -47,7 +47,7 @@ module ServiceOperator
       # Examples
       #
       #   class MyOperator
-      #     include ServiceOperator
+      #     include ServiceOperator::Helpers
       #
       #     step :set_initiated
       #     step :perform_work, service: AnotherService
@@ -70,7 +70,7 @@ module ServiceOperator
       # Examples
       #
       #   class MyOperator
-      #     include ServiceOperator
+      #     include ServiceOperator::Helpers
       #
       #     after :set_finish_time
       #     after :finishing, service: SomeService

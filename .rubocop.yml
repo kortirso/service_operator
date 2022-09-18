@@ -23,6 +23,9 @@ Style/Documentation:
 Style/BlockDelimiters:
   Enabled: false
 
+Style/ModuleFunction:
+  Enabled: false
+
 Layout/LineLength:
   Max: 120
 
